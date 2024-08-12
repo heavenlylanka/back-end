@@ -1,14 +1,22 @@
 package com.heavenlylanka.heavenlylanka.service;
-
-import com.heavenlylanka.heavenlylanka.dto.UserDto;
+import com.heavenlylanka.heavenlylanka.dto.RegisterRequest;
 import com.heavenlylanka.heavenlylanka.entity.User;
+import com.heavenlylanka.heavenlylanka.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
+@Service
+public class UserService {
 
-public interface UserService {
-    void saveUser(UserDto userDto);
+    @Autowired
+    private UserRepository userRepository;
 
-    User findUserByEmail(String email);
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    List<UserDto> findAllUsers();
+    public void registerUser(RegisterRequest registerRequest) {
+        User user = new User(registerRequest.getEmail(), passwordEncoder.encode(registerRequest.getPassword()));
+        userRepository.save(user);
+    }
 }
