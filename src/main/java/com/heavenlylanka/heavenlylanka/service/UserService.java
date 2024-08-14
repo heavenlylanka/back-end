@@ -16,7 +16,7 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public void registerUser(RegisterRequest registerRequest) {
-        User user = new User(registerRequest.getEmail(), passwordEncoder.encode(registerRequest.getPassword()));
+        User user = new User(registerRequest.getName(),registerRequest.getEmail(), passwordEncoder.encode(registerRequest.getPassword()));
         userRepository.save(user);
     }
 }

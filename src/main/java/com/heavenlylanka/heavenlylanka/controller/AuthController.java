@@ -18,6 +18,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/auth")
@@ -63,5 +66,25 @@ public class AuthController {
         }
         userService.registerUser(registerRequest);
         return ResponseEntity.ok("User registered successfully");
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        Map<String, Object> profile = new HashMap<>();
+        profile.put("email", user.getEmail());
+        profile.put("name", user.getName());
+
+        return ResponseEntity.ok(profile);
     }
 }
