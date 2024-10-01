@@ -3,6 +3,8 @@ package com.heavenlylanka.heavenlylanka.controller;
 import com.heavenlylanka.heavenlylanka.dto.LoginRequest;
 import com.heavenlylanka.heavenlylanka.dto.LoginResponse;
 import com.heavenlylanka.heavenlylanka.dto.RegisterRequest;
+import com.heavenlylanka.heavenlylanka.dto.UpdateRequest;
+import com.heavenlylanka.heavenlylanka.dto.UpdatePasswordRequest;
 import com.heavenlylanka.heavenlylanka.entity.User;
 import com.heavenlylanka.heavenlylanka.repository.UserRepository;
 import com.heavenlylanka.heavenlylanka.service.UserService;
@@ -86,5 +88,63 @@ public class AuthController {
         profile.put("name", user.getName());
 
         return ResponseEntity.ok(profile);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUser(@RequestBody UpdateRequest updateRequest, Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        // Update name if provided
+        if (updateRequest.getName() != null && !updateRequest.getName().isEmpty()) {
+            user.setName(updateRequest.getName());
+        }
+
+        // Update email if provided (and if it's not already taken by another user)
+        if (updateRequest.getEmail() != null && !updateRequest.getEmail().isEmpty()) {
+            if (!user.getEmail().equals(updateRequest.getEmail())) {
+                if (userRepository.findByEmail(updateRequest.getEmail()).isPresent()) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email is already in use");
+                }
+                user.setEmail(updateRequest.getEmail());
+            }
+        }
+
+        userRepository.save(user);
+        return ResponseEntity.ok("User updated successfully");
+    }
+
+    // Update password by verifying current password
+    @PutMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordRequest updatePasswordRequest, Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        // Verify current password
+        if (!userService.verifyPassword(updatePasswordRequest.getCurrentPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Current password is incorrect");
+        }
+
+        // Set new password
+        user.setPassword(userService.encodePassword(updatePasswordRequest.getNewPassword()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Password updated successfully");
     }
 }
