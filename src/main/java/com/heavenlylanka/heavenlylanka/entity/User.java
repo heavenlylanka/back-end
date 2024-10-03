@@ -11,16 +11,18 @@ public class User {
     private Long id;
     private String name;
     private String email;
-
     private String password;
+
+    // New field for profile picture (storing image URL or file path)
+    @Column(nullable = true)
+    private String profilePicture;
 
     public User() {}
 
-    public User(String name,String email, String password) {
+    public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-
     }
 
     // Getters and Setters
@@ -54,5 +56,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
