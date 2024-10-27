@@ -19,3 +19,4 @@ public class ContactMessageService {
         return contactMessageRepository.save(message);
     }
 }
+
