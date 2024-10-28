@@ -7,6 +7,7 @@ import com.heavenlylanka.heavenlylanka.entity.ContactMessage;
 
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/admin/contact-messages")
 public class AdminContactMessageController {
