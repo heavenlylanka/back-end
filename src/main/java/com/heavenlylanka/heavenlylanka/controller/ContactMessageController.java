@@ -1,5 +1,4 @@
 package com.heavenlylanka.heavenlylanka.controller;
-
 import com.heavenlylanka.heavenlylanka.entity.ContactMessage;
 import com.heavenlylanka.heavenlylanka.service.ContactMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
